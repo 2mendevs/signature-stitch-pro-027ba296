@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Search, User, ShoppingBag, Menu } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, Heart } from "lucide-react";
 import { useState } from "react";
+import { useStore, cartCount } from "@/lib/store";
 
 const navLinks = [
   { to: "/shop", label: "Shop" },
   { to: "/customize", label: "Customize" },
-  { to: "/collections", label: "Collections" },
-  { to: "/about", label: "About Us" },
-  { to: "/contact", label: "Contact" },
+  { to: "/wishlist", label: "Wishlist" },
+  { to: "/account", label: "Account" },
 ];
 
 export function AnnouncementBar() {
@@ -24,24 +24,32 @@ export function AnnouncementBar() {
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { cart, wishlist } = useStore();
+  const count = cartCount(cart);
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <AnnouncementBar />
       <div className="container-x flex items-center justify-between h-16 md:h-20">
         <Link to="/" className="text-xl md:text-2xl font-extrabold tracking-tight">2MENDEVS</Link>
         <nav className="hidden lg:flex items-center gap-9 text-sm font-semibold tracking-wide">
-          {navLinks.map(l => (
+          {navLinks.map((l) => (
             <Link key={l.to} to={l.to as any} className="hover:text-muted-foreground transition-colors uppercase text-[12px]">
               {l.label}
             </Link>
           ))}
         </nav>
         <div className="flex items-center gap-4">
-          <button aria-label="Search" className="hidden sm:block hover:opacity-70"><Search className="w-5 h-5" /></button>
-          <button aria-label="Account" className="hidden sm:block hover:opacity-70"><User className="w-5 h-5" /></button>
+          <Link to="/shop" aria-label="Search" className="hidden sm:block hover:opacity-70"><Search className="w-5 h-5" /></Link>
+          <Link to="/wishlist" aria-label="Wishlist" className="relative hover:opacity-70">
+            <Heart className="w-5 h-5" />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-ink text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center">{wishlist.length}</span>
+            )}
+          </Link>
+          <Link to="/account" aria-label="Account" className="hidden sm:block hover:opacity-70"><User className="w-5 h-5" /></Link>
           <Link to="/cart" aria-label="Cart" className="relative hover:opacity-70">
             <ShoppingBag className="w-5 h-5" />
-            <span className="absolute -top-2 -right-2 bg-ink text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
+            <span className="absolute -top-2 -right-2 bg-ink text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center">{count}</span>
           </Link>
           <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu"><Menu className="w-5 h-5" /></button>
         </div>
@@ -49,7 +57,7 @@ export function Header() {
       {open && (
         <div className="lg:hidden border-t border-border bg-background">
           <nav className="container-x flex flex-col py-4 gap-3 text-sm font-semibold uppercase">
-            {navLinks.map(l => (
+            {navLinks.map((l) => (
               <Link key={l.to} to={l.to as any} onClick={() => setOpen(false)}>{l.label}</Link>
             ))}
           </nav>
