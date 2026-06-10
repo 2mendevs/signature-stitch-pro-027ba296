@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { ZoomIn, ZoomOut, Type, Sparkles, Image as ImageIcon, Grid3x3, Eye, EyeOff, ChevronUp, ShoppingBag, RotateCcw, X, Bold, AlignLeft, AlignCenter, AlignRight, HelpCircle, Save, Share2, Check } from "lucide-react";
 import customizeHoodie from "@/assets/customize-hoodie.jpg";
 import tshirtMockup from "@/assets/tshirt-mockup.jpg";
+import { useStore } from "@/lib/store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/customize")({
   head: () => ({
@@ -35,6 +37,8 @@ const colorOptions = ["#000000","#FFFFFF","#C9C9C9","#E8D9C5","#B5A98E","#8B6F4E
 const fonts = ["Bebas Neue", "Inter", "Playfair Display", "Roboto Mono", "Anton"];
 
 function CustomizePage() {
+  const navigate = useNavigate();
+  const { addToCart, saveDesign } = useStore();
   const [productIdx, setProductIdx] = useState(0);
   const [materialIdx, setMaterialIdx] = useState(2);
   const [colorIdx, setColorIdx] = useState(0);
@@ -307,9 +311,26 @@ function CustomizePage() {
             </Section>
           </div>
 
-          <div className="p-4 sticky bottom-0 bg-background border-t border-border">
-            <button className="w-full bg-ink text-primary-foreground py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90">
+          <div className="p-4 sticky bottom-0 bg-background border-t border-border space-y-2">
+            <button
+              onClick={() => {
+                const design = { productType: product.name, material: material.name, materialPrice: material.price, color: tshirtColor, text: textInput, font: fontFamily, textColor, placement: view, extras: [{ label: "Front Print", price: frontPrintCost }] };
+                addToCart({ slug: `custom-${Date.now()}`, name: `Custom ${product.name}`, image: product.name === "Hoodie" || product.name === "Sweatshirt" ? customizeHoodie : tshirtMockup, price: total, size: "M", color: tshirtColor, qty: 1, custom: design });
+                toast.success("Custom design added to cart");
+                navigate({ to: "/cart" });
+              }}
+              className="w-full bg-ink text-primary-foreground py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90"
+            >
               <ShoppingBag className="w-4 h-4" /> ADD TO CART · ₹{total.toLocaleString()}
+            </button>
+            <button
+              onClick={() => {
+                saveDesign({ name: `${product.name} · ${textInput || "Untitled"}`, productType: product.name, material: material.name, materialPrice: material.price, color: tshirtColor, text: textInput, font: fontFamily, textColor, placement: view, extras: [{ label: "Front Print", price: frontPrintCost }], price: total });
+                toast.success("Design saved");
+              }}
+              className="w-full border border-border py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2"
+            >
+              <Save className="w-3.5 h-3.5" /> Save Design
             </button>
           </div>
         </aside>
