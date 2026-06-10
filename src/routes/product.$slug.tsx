@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star, Minus, Plus, ShoppingBag, Edit3, Truck, Ruler, ChevronDown, Check, Upload, Type, Palette, Image as ImageIcon, ArrowRight } from "lucide-react";
+import { Star, Minus, Plus, ShoppingBag, Edit3, Truck, Ruler, ChevronDown, Check, Upload, Type, Palette, Image as ImageIcon, ArrowRight, Heart } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ProductCard } from "@/components/site/ProductCard";
 import { getProduct, products } from "@/lib/products";
+import { useStore } from "@/lib/store";
+import { toast } from "sonner";
 import hoodieBlack from "@/assets/product-hoodie-black.jpg";
 import teeBlack from "@/assets/product-tee-black.jpg";
 import joggersImg from "@/assets/product-joggers.jpg";
@@ -47,11 +49,19 @@ const faqs = [
 function ProductPage() {
   const { slug } = Route.useParams();
   const product = getProduct(slug);
+  const { addToCart, toggleWishlist, inWishlist } = useStore();
   const [active, setActive] = useState(0);
   const [color, setColor] = useState(product.colors[0]);
-  const [size, setSize] = useState("M");
+  const [size, setSize] = useState(product.sizes[Math.min(2, product.sizes.length - 1)]);
   const [qty, setQty] = useState(1);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const productGallery = product.gallery ?? [product.image, product.image, product.image];
+  const liked = inWishlist(product.slug);
+  const handleAdd = () => {
+    addToCart({ slug: product.slug, name: product.name, image: product.image, price: product.price, size, color, qty });
+    toast.success(`Added to cart`);
+  };
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -119,11 +129,16 @@ function ProductPage() {
             </div>
           </div>
 
-          <button className="w-full bg-ink text-primary-foreground py-4 rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition">
-            <ShoppingBag className="w-4 h-4" /> ADD TO CART · ₹{(product.price * qty).toLocaleString()}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleAdd} className="flex-1 bg-ink text-primary-foreground py-4 rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition">
+              <ShoppingBag className="w-4 h-4" /> ADD TO CART · ₹{(product.price * qty).toLocaleString()}
+            </button>
+            <button onClick={() => { toggleWishlist(product.slug); toast(liked ? "Removed from wishlist" : "Saved to wishlist"); }} aria-label="Wishlist" className="w-14 h-14 border border-border rounded-full flex items-center justify-center hover:bg-sand">
+              <Heart className={`w-5 h-5 ${liked ? "fill-ink" : ""}`} />
+            </button>
+          </div>
           <Link to="/customize" className="w-full border border-border py-4 rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:bg-ink hover:text-primary-foreground transition">
-            <Edit3 className="w-4 h-4" /> CUSTOMIZE THIS HOODIE
+            <Edit3 className="w-4 h-4" /> CUSTOMIZE THIS PIECE
           </Link>
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
