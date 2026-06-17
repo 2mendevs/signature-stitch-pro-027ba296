@@ -3,7 +3,7 @@ import { defineConfig } from "@tanstack/start/config";
 export default defineConfig({
   start: {
     server: {
-      preset: "vercel"
-    }
-  }
+      preset: "vercel",
+    },
+  },
 });
