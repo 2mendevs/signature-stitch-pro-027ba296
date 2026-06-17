@@ -1,12 +1,10 @@
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "@tanstack/start/config";
 
 export default defineConfig({
-  tanstackStart: {
-    server: { 
-      entry: "server" 
+  // Ensure the server entry is pointing to your app.tsx or server.ts
+  start: {
+    server: {
+      preset: "cloudflare-pages",
     },
   },
-  nitro: {
-    preset: 'vercel'
-  }
 });
