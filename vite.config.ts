@@ -6,7 +6,6 @@ export default defineConfig({
       entry: "server" 
     },
   },
-  // This tells the underlying Nitro server to build for Vercel Serverless Functions
   nitro: {
     preset: 'vercel'
   }
